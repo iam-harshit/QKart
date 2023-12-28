@@ -1,1 +1,0 @@
-# QKart-Module-3-Stub
