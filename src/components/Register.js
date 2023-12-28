@@ -1,4 +1,5 @@
 import { Button, CircularProgress, Stack, TextField } from "@mui/material";
+import { useHistory, Link } from "react-router-dom";
 import { Box } from "@mui/system";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -16,6 +17,7 @@ const Register = () => {
     confirmPassword: ""
   });
   const [isLoading, setIsLoading] = useState(false);
+  const history = useHistory();
 
   const changeHandler = (e) => {
     setFormData((prev) => ({
@@ -26,8 +28,6 @@ const Register = () => {
 
   // console.log("FormData -> ", formData);
 
-
-  // TODO: CRIO_TASK_MODULE_REGISTER - Implement the register function
   /**
    * Definition for register handler
    * - Function to be called when the user clicks on the register button or submits the register form
@@ -51,29 +51,33 @@ const Register = () => {
    * }
    */
   const register = async (formData) => {
-    // console.log("register", formData);
-    try {
+    // console.log("register", formData);\
       setIsLoading(true);
-      await axios.post(`${config.endpoint}/auth/register`, {
+      axios.post(`${config.endpoint}/auth/register`, {
         username: formData.username,
         password: formData.password
-      });
+      })
+      .then((response) => {
+        if(response.status === 201){
+          enqueueSnackbar("Registered Successfully", {variant: "success"});
+          history.push("/login", {from: "register"});
+        }
+      })
+      .catch((error) => {
+        if (error.response.status === 400) {
+          enqueueSnackbar(error.response.data.message, { variant: "error" });
+        } else {
+          enqueueSnackbar(
+            "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
+            { variant: "error" }
+          );
+        }
+      })
       setFormData({
         username: "",
         password: "",
         confirmPassword: ""
-      })
-        enqueueSnackbar("Registered Successfully", {variant: "success"});
-    } catch (e) {
-      if (e.response || e.response.status == 400) {
-        enqueueSnackbar(e.response.data.message, { variant: "error" });
-      } else {
-        enqueueSnackbar(
-          "Something went wrong. Check that the backend is running, reachable and returns valid JSON.",
-          { variant: "error" }
-        );
-      }
-    }
+      });
     setIsLoading(false);
   };
 
@@ -173,23 +177,19 @@ const Register = () => {
           />
            {
             isLoading ? (
-              <div>
-                <h4>Hello !!!</h4>
-              </div>
+              <CircularProgress/>
             ) :
             (
-              <div>
               <Button className="button" variant="contained" onClick={() => validateInput(formData)}>
             Register Now
            </Button>
-              </div>
             )
            }
           <p className="secondary-action">
             Already have an account?{" "}
-             <a className="link" href="#">
+            <Link className="link" to="/login">
               Login here
-             </a>
+            </Link>
           </p>
         </Stack>
       </Box>
