@@ -12,6 +12,7 @@ import React from "react";
 import "./ProductCard.css";
 
 const ProductCard = ({ product, handleAddToCart }) => {
+  // console.log(handleAddToCart);
   return (
     <Card className="card">
       <CardMedia
