@@ -78,6 +78,28 @@ export const getTotalCartValue = (items = []) => {
   return total;
 };
 
+// TODO: CRIO_TASK_MODULE_CHECKOUT - Implement function to return total cart quantity
+/**
+ * Return the sum of quantities of all products added to the cart
+ *
+ * @param { Array.<CartItem> } items
+ *    Array of objects with complete data on products in cart
+ *
+ * @returns { Number }
+ *    Total quantity of products added to the cart
+ *
+ */
+export const getTotalItems = (items = []) => {
+  if(!items) return;
+  let totalItems = 0;
+  items.forEach((item) => {
+    totalItems += item.qty;
+  });
+  // console.log(totalItems);
+  return totalItems;
+};
+
+
 /**
  * Component to display the current quantity for a product and + and - buttons to update product quantity on cart
  *
@@ -92,7 +114,10 @@ export const getTotalCartValue = (items = []) => {
  *
  *
  */
-const ItemQuantity = ({ value, handleAdd, handleDelete }) => {
+const ItemQuantity = ({ value, handleAdd, handleDelete, isReadOnly=false }) => {
+  if(isReadOnly){
+    return <Box padding="0.5rem">Qty: {value}</Box>
+  }
   return (
     <Stack direction="row" alignItems="center">
       <IconButton size="small" color="primary" onClick={handleDelete}>
@@ -122,7 +147,8 @@ const ItemQuantity = ({ value, handleAdd, handleDelete }) => {
  *
  *
  */
-const Cart = ({ products, items = [], handleQuantity }) => {
+const Cart = ({ products, items = [], handleQuantity, isReadOnly = false }) => {
+  // getTotalItems(items);
   // console.log(items);
   const token = localStorage.getItem("token");
   const history = useHistory();
@@ -192,6 +218,7 @@ const Cart = ({ products, items = [], handleQuantity }) => {
                         item.qty - 1
                       );
                     }}
+                    isReadOnly = {isReadOnly}
                   />
                   <Box padding="0.5rem" fontWeight="700">
                     ${item.cost}
@@ -221,7 +248,9 @@ const Cart = ({ products, items = [], handleQuantity }) => {
           </Box>
         </Box>
 
-        <Box display="flex" justifyContent="flex-end" className="cart-footer">
+        {
+          !isReadOnly && (
+            <Box display="flex" justifyContent="flex-end" className="cart-footer">
           <Button
             color="primary"
             variant="contained"
@@ -234,6 +263,8 @@ const Cart = ({ products, items = [], handleQuantity }) => {
             Checkout
           </Button>
         </Box>
+          )
+        }
       </Box>
     </>
   );
